@@ -7,29 +7,31 @@ on:
       - 'DatingApp.API/**'
       - '.github/workflows/deploy-api.yml'
 
+env:
+  ACR_LOGIN_SERVER: datingappacre82d76.azurecr.io
+  IMAGE_NAME: datingapp-api
+
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-dotnet@v4
+      - name: Log in to ACR
+        uses: docker/login-action@v3
         with:
-          dotnet-version: '8.0.x'
+          registry: ${{ env.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Publish
-        working-directory: DatingApp.API
-        run: dotnet publish -c Release -o ./publish
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: DatingApp.API
+          push: true
+          tags: |
+            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-      - name: Zip publish output
-        working-directory: DatingApp.API/publish
-        run: zip -r ../release.zip .
-
-      - name: Deploy via Kudu ZipDeploy
-        working-directory: DatingApp.API
-        run: |
-          curl -fL -X POST \
-            -H "Authorization: Basic ${{ secrets.AZURE_API_KUDU_AUTH }}" \
-            -H "Content-Type: application/zip" \
-            --data-binary @release.zip \
-            "https://datingapp-api-e82d76.scm.azurewebsites.net/api/zipdeploy"
+      # Pushing the :latest tag above fires the ACR webhook, which triggers
+      # App Service to pull the new image and restart automatically.
