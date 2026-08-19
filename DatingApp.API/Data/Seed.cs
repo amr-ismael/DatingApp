@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Xml.Xsl;
+using System.Linq;
 using DatingApp.API.Models;
-using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 
 namespace DatingApp.API.Data
