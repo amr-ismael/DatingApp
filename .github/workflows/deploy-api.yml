@@ -21,9 +21,15 @@ jobs:
         working-directory: DatingApp.API
         run: dotnet publish -c Release -o ./publish
 
-      - name: Deploy to Azure App Service
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: datingapp-api-e82d76
-          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
-          package: DatingApp.API/publish
+      - name: Zip publish output
+        working-directory: DatingApp.API/publish
+        run: zip -r ../release.zip .
+
+      - name: Deploy via Kudu ZipDeploy
+        working-directory: DatingApp.API
+        run: |
+          curl -fL -X POST \
+            -H "Authorization: Basic ${{ secrets.AZURE_API_KUDU_AUTH }}" \
+            -H "Content-Type: application/zip" \
+            --data-binary @release.zip \
+            "https://datingapp-api-e82d76.scm.azurewebsites.net/api/zipdeploy"
