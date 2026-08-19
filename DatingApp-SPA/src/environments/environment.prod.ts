@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  apiUrl: 'https://datingapp-api-e82d76.azurewebsites.net/api/'
 };

@@ -1,0 +1,29 @@
+name: Deploy API
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'DatingApp.API/**'
+      - '.github/workflows/deploy-api.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish
+        working-directory: DatingApp.API
+        run: dotnet publish -c Release -o ./publish
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: datingapp-api-e82d76
+          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+          package: DatingApp.API/publish

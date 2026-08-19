@@ -2,12 +2,12 @@
   "name": "dating-app-spa",
   "version": "0.0.0",
   "scripts": {
-    "ng": "cross-env NODE_OPTIONS=--openssl-legacy-provider ng",
-    "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider ng serve",
-    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider ng build",
-    "test": "cross-env NODE_OPTIONS=--openssl-legacy-provider ng test",
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "test": "ng test",
     "lint": "ng lint",
-    "e2e": "cross-env NODE_OPTIONS=--openssl-legacy-provider ng e2e"
+    "e2e": "ng e2e"
   },
   "private": true,
   "dependencies": {

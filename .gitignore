@@ -3,6 +3,14 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# SQLite database files (no longer used, kept out of source control)
+*.db
+*.db-shm
+*.db-wal
+
+# Local dev docker compose (hardcodes SQL Server dev credentials)
+docker-compose.yml
+
 # User-specific files
 *.rsuser
 *.suo
