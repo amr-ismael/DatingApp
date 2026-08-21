@@ -2,29 +2,33 @@
   <div class="container">
     <a class="navbar-brand" [routerLink]="['/']"  >DATING APP</a>
 
-  <div class="navbar-collapse collapse" id="navbarsExampleDefault">
-    <ul *ngIf="loggedIn()" class="navbar-nav mr-auto">
-      <li class="nav-item " routerLinkActive="active">
-        <a class="nav-link" [routerLink]="['/members']">Matches</a>
-      </li>
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" [routerLink]="['/lists']">Lists</a>
-      </li>
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link " [routerLink]="['/messages']">Messages</a>
-      </li>
-    </ul>
-  </div>
-    <div *ngIf="loggedIn()" class="dropdown dropdown-main mr-3" dropdown>
-      <a class="dropdown-toggle text-light" role="button" id="dropdownMenuLink" dropdownToggle>
-        Welcome {{authService.decodedToken?.unique_name | titlecase}}
-      </a>
-      <div class="dropdown-menu mt-2" *dropdownMenu>
-        <a class="dropdown-item" href="#"><i class="fa fa-user"></i> Edit Profile</a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="#" (click)="logout()"><i class="fa fa-sign-out" ></i> Logout</a>
-      </div>
+    <div class="navbar-collapse collapse" id="navbarsExampleDefault">
+      @if (loggedIn()) {
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item " routerLinkActive="active">
+            <a class="nav-link" [routerLink]="['/members']">Matches</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" [routerLink]="['/lists']">Lists</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link " [routerLink]="['/messages']">Messages</a>
+          </li>
+        </ul>
+      }
     </div>
+    @if (loggedIn()) {
+      <div class="dropdown dropdown-main mr-3" dropdown>
+        <a class="dropdown-toggle text-light" role="button" id="dropdownMenuLink" dropdownToggle>
+          Welcome {{authService.decodedToken?.unique_name | titlecase}}
+        </a>
+        <div class="dropdown-menu mt-2" *dropdownMenu>
+          <a class="dropdown-item" href="#"><i class="fa fa-user"></i> Edit Profile</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#" (click)="logout()"><i class="fa fa-sign-out" ></i> Logout</a>
+        </div>
+      </div>
+    }
 
     <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
       aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,32 +36,34 @@
     </button>
 
     <!-- to use #loginForm="ngForm" you need to import FormsModule in app.module imports -->
-    <form *ngIf="!loggedIn()" #loginForm="ngForm" class="form-inline my-2 my-lg-0" (ngSubmit)="login()">
-      <input class="form-control mr-sm-2" type="text" name="username" placeholder="Username" required
-        #username="ngModel" [(ngModel)]="model.username">
-      <input class="form-control mr-sm-2" type="password" name="password" placeholder="Password" required
-        [(ngModel)]="model.password" #password="ngModel">
-      <button [disabled]="!loginForm.valid" class="btn btn-success my-2 my-sm-0" type="submit">
+    @if (!loggedIn()) {
+      <form #loginForm="ngForm" class="form-inline my-2 my-lg-0" (ngSubmit)="login()">
+        <input class="form-control mr-sm-2" type="text" name="username" placeholder="Username" required
+          #username="ngModel" [(ngModel)]="model.username">
+        <input class="form-control mr-sm-2" type="password" name="password" placeholder="Password" required
+          [(ngModel)]="model.password" #password="ngModel">
+        <button [disabled]="!loginForm.valid" class="btn btn-success my-2 my-sm-0" type="submit">
         Login</button>
-    </form>
+      </form>
+    }
   </div>
 
-  
+
 </nav>
 
 <!-- print form validation and other attrs -->
 <!-- <pre>
-  Form Valid: {{loginForm.valid}}
-  Form Touched: {{loginForm.touched}}
-  Form Dirty: {{loginForm.dirty}}
-  Form Values: {{loginForm.value | json}}
-  Username Valid: {{username.valid}}
-  Username Touched: {{username.touched}}
-  Username Dirty: {{username.dirty}}
-  Username Value: {{username.value }}
-  Password Valid: {{password.valid}}
-  Password Touched: {{password.touched}}
-  Password Dirty: {{password.dirty}}
-  Password Value: {{password.value }}
+Form Valid: {{loginForm.valid}}
+Form Touched: {{loginForm.touched}}
+Form Dirty: {{loginForm.dirty}}
+Form Values: {{loginForm.value | json}}
+Username Valid: {{username.valid}}
+Username Touched: {{username.touched}}
+Username Dirty: {{username.dirty}}
+Username Value: {{username.value }}
+Password Valid: {{password.valid}}
+Password Touched: {{password.touched}}
+Password Dirty: {{password.dirty}}
+Password Value: {{password.value }}
 
 </pre> -->
