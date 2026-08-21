@@ -11,6 +11,9 @@
 # Local dev docker compose (hardcodes SQL Server dev credentials)
 docker-compose.yml
 
+# Personal learning notes on the Angular upgrade, not meant for the repo
+DatingApp-SPA/ANGULAR_UPGRADE_CHANGELOG.md
+
 # User-specific files
 *.rsuser
 *.suo
