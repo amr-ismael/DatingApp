@@ -19,25 +19,31 @@ import { MessagesComponent } from '../messages/messages.component';
 import { appRoutes } from './routes';
 
 
-@NgModule({ declarations: [
-        AppComponent,
-        NavComponent,
-        HomeComponent,
-        RegisterComponent,
-        MemberListComponent,
-        ListsComponent,
-        MessagesComponent
-    ],
-    bootstrap: [
-        AppComponent
-    ], imports: [BrowserModule,
-        FormsModule,
-        BrowserAnimationsModule,
-        BsDropdownModule.forRoot(),
-        RouterModule.forRoot(appRoutes, {})], providers: [
-        AuthService,
-        ErrorInterceptorProvider,
-        AlertifyService,
-        provideHttpClient(withInterceptorsFromDi())
-    ] })
+@NgModule({
+   declarations: [
+      AppComponent,
+      NavComponent,
+      HomeComponent,
+      RegisterComponent,
+      MemberListComponent,
+      ListsComponent,
+      MessagesComponent
+   ],
+   imports: [
+      BrowserModule,
+      FormsModule,
+      BrowserAnimationsModule,
+      BsDropdownModule.forRoot(),
+      RouterModule.forRoot(appRoutes)
+   ],
+   providers: [
+      AuthService,
+      ErrorInterceptorProvider,
+      AlertifyService,
+      provideHttpClient(withInterceptorsFromDi())
+   ],
+   bootstrap: [
+      AppComponent
+   ]
+})
 export class AppModule { }
