@@ -35,7 +35,7 @@ import { appRoutes } from './routes';
       FormsModule,
       BrowserAnimationsModule,
       BsDropdownModule.forRoot(),
-      RouterModule.forRoot(appRoutes, { relativeLinkResolution: 'legacy' })
+      RouterModule.forRoot(appRoutes, {})
    ],
    providers: [
       AuthService,
