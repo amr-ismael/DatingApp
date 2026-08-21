@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -19,31 +19,25 @@ import { MessagesComponent } from '../messages/messages.component';
 import { appRoutes } from './routes';
 
 
-@NgModule({
-   declarations: [
-      AppComponent,
-      NavComponent,
-      HomeComponent,
-      RegisterComponent,
-      MemberListComponent,
-      ListsComponent,
-      MessagesComponent
-   ],
-   imports: [
-      BrowserModule,
-      HttpClientModule,
-      FormsModule,
-      BrowserAnimationsModule,
-      BsDropdownModule.forRoot(),
-      RouterModule.forRoot(appRoutes, {})
-   ],
-   providers: [
-      AuthService,
-      ErrorInterceptorProvider,
-      AlertifyService
-   ],
-   bootstrap: [
-      AppComponent
-   ]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        NavComponent,
+        HomeComponent,
+        RegisterComponent,
+        MemberListComponent,
+        ListsComponent,
+        MessagesComponent
+    ],
+    bootstrap: [
+        AppComponent
+    ], imports: [BrowserModule,
+        FormsModule,
+        BrowserAnimationsModule,
+        BsDropdownModule.forRoot(),
+        RouterModule.forRoot(appRoutes, {})], providers: [
+        AuthService,
+        ErrorInterceptorProvider,
+        AlertifyService,
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule { }
