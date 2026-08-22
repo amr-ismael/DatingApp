@@ -11,8 +11,8 @@ describe('NavComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ NavComponent ]
-    })
+    imports: [NavComponent]
+})
     .compileComponents();
   }));
 

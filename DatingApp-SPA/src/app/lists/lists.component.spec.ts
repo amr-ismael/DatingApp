@@ -11,8 +11,8 @@ describe('ListsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ ListsComponent ]
-    })
+    imports: [ListsComponent]
+})
     .compileComponents();
   }));
 

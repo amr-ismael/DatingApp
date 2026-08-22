@@ -11,8 +11,8 @@ describe('RegisterComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ RegisterComponent ]
-    })
+    imports: [RegisterComponent]
+})
     .compileComponents();
   }));
 
