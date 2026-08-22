@@ -33,8 +33,8 @@ export class AuthService {
   }
 
   loggedIn() {
-    const token = localStorage.getItem('token') || undefined;
-    return !this.jwtHelper.isTokenExpired(token);
+    const token = localStorage.getItem('token');
+    return !!token && !this.jwtHelper.isTokenExpired(token);
   }
 
 }

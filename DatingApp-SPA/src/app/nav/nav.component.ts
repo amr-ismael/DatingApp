@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
 import { AlertifyService } from '../_services/alertify.service';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -10,6 +10,7 @@ import { TitleCasePipe } from '@angular/common';
     selector: 'app-nav',
     templateUrl: './nav.component.html',
     styleUrls: ['./nav.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [RouterLink, RouterLinkActive, BsDropdownModule, FormsModule, TitleCasePipe]
 })
 export class NavComponent implements OnInit {

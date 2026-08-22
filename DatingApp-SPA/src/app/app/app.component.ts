@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { NavComponent } from '../nav/nav.component';
@@ -8,6 +8,7 @@ import { RouterOutlet } from '@angular/router';
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [NavComponent, RouterOutlet]
 })
 export class AppComponent implements OnInit {
