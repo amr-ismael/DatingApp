@@ -19,5 +19,6 @@ export class AuthGuard  {
     }
     this.alertify.error('You shall not pass !');
     this.router.navigate(['']);
+    return false;
   }
 }

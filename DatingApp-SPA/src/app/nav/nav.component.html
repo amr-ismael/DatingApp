@@ -20,7 +20,7 @@
     @if (loggedIn()) {
       <div class="dropdown dropdown-main mr-3" dropdown>
         <a class="dropdown-toggle text-light" role="button" id="dropdownMenuLink" dropdownToggle>
-          Welcome {{authService.decodedToken?.unique_name | titlecase}}
+          Welcome {{$safeNavigationMigration(authService.decodedToken?.unique_name) | titlecase}}
         </a>
         <div class="dropdown-menu mt-2" *dropdownMenu>
           <a class="dropdown-item" href="#"><i class="fa fa-user"></i> Edit Profile</a>

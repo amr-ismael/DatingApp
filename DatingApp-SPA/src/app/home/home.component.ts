@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RegisterComponent } from '../register/register.component';
 
@@ -6,6 +6,7 @@ import { RegisterComponent } from '../register/register.component';
     selector: 'app-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [RegisterComponent]
 })
 export class HomeComponent implements OnInit {

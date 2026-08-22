@@ -1,12 +1,10 @@
 import { enableProdMode, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-
 
 import { environment } from './environments/environment';
 import { AuthService } from './app/_services/auth.service';
 import { ErrorInterceptorProvider } from './app/_services/error.interceptor';
 import { AlertifyService } from './app/_services/alertify.service';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -21,11 +19,11 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
     providers: [
-        provideZoneChangeDetection(),importProvidersFrom(BrowserModule, FormsModule, BsDropdownModule.forRoot()),
+        provideZoneChangeDetection(), importProvidersFrom(BrowserModule, FormsModule, BsDropdownModule),
         AuthService,
         ErrorInterceptorProvider,
         AlertifyService,
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideAnimations(),
         provideRouter(appRoutes)
     ]
