@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using DatingApp.API.Data;
 using DatingApp.API.Helpers;
+using DatingApp.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -45,8 +46,11 @@ namespace DatingApp.API
       services.AddAutoMapper(cfg => { }, typeof(DatingRepository));
       services.AddTransient<Seed>();
       // scoped means services is created once per request , singleton for each request
-      services.AddScoped<IAuthRepository, AuthRepository>();
+      services.AddScoped<IUserRepository, UserRepository>();
       services.AddScoped<IDatingRepository, DatingRepository>();
+      services.AddScoped<IPasswordHasher, PasswordHasher>();
+      services.AddScoped<IAuthService, AuthService>();
+      services.AddScoped<IUserService, UserService>();
 
       // add auth service
       services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
