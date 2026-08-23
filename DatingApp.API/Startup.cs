@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace DatingApp.API
 {
@@ -60,6 +61,27 @@ namespace DatingApp.API
             ValidateAudience = false
           };
         });
+
+      services.AddSwaggerGen(options =>
+      {
+        options.SwaggerDoc("v1", new OpenApiInfo { Title = "DatingApp API", Version = "v1" });
+
+        var bearerScheme = new OpenApiSecurityScheme
+        {
+          Name = "Authorization",
+          Type = SecuritySchemeType.Http,
+          Scheme = "bearer",
+          BearerFormat = "JWT",
+          In = ParameterLocation.Header,
+          Description = "Paste the JWT returned from /api/auth/login (without the \"Bearer \" prefix).",
+          Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+        };
+        options.AddSecurityDefinition("Bearer", bearerScheme);
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+          { bearerScheme, new string[] { } }
+        });
+      });
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -87,6 +109,12 @@ namespace DatingApp.API
       }
 
       // app.UseHttpsRedirection();
+
+      app.UseSwagger();
+      app.UseSwaggerUI(options =>
+      {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "DatingApp API v1");
+      });
 
       app.UseRouting();
 
