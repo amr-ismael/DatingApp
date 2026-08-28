@@ -376,4 +376,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 ARCHITECTURE_PLANNING.md
-BACKEND_SPEC.md
+CLAUDE.md
+.claude
+CONTRIBUTING.md

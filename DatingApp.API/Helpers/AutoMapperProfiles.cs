@@ -10,15 +10,15 @@ namespace DatingApp.API.Helpers
     {
         public AutoMapperProfiles()
         {
-            CreateMap<User, UserForListDto>()
-                .ForMember(dest => dest.PhotoUrl, 
+            CreateMap<User, ListUserDto>()
+                .ForMember(dest => dest.PhotoUrl,
                     opt => opt.MapFrom(src =>src.Photos.FirstOrDefault(p => p.IsMain).Url))
-                .ForMember(dest => dest.Age, 
+                .ForMember(dest => dest.Age,
                     opt => opt.MapFrom(src => src.DateOfBirth.CalculateAge() ));
-            CreateMap<User, UserForDetailedDto>()
-                .ForMember(dest => dest.Age, 
+            CreateMap<User, DetailedUserDto>()
+                .ForMember(dest => dest.Age,
                 opt => opt.MapFrom(src => src.DateOfBirth.CalculateAge() ));
-            CreateMap<Photo, PhotosForDetailedDto>();
+            CreateMap<Photo, DetailedPhotoDto>();
         }
     }
 }

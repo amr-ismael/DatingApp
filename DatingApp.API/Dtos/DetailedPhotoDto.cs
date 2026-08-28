@@ -3,7 +3,7 @@ using DatingApp.API.Models;
 
 namespace DatingApp.API.Dtos
 {
-    public class PhotosForDetailedDto
+    public class DetailedPhotoDto
     {
         public int Id { get; set; }
         public string Url { get; set; }

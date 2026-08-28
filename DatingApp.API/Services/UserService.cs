@@ -8,8 +8,8 @@ namespace DatingApp.API.Services
 {
     public interface IUserService
     {
-        Task<IEnumerable<UserForListDto>> GetUsers();
-        Task<UserForDetailedDto> GetUser(int id);
+        Task<IEnumerable<ListUserDto>> GetUsers();
+        Task<DetailedUserDto> GetUser(int id);
     }
 
     public class UserService : IUserService
@@ -23,16 +23,16 @@ namespace DatingApp.API.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<UserForListDto>> GetUsers()
+        public async Task<IEnumerable<ListUserDto>> GetUsers()
         {
             var users = await _userRepository.GetUsers();
-            return _mapper.Map<IEnumerable<UserForListDto>>(users);
+            return _mapper.Map<IEnumerable<ListUserDto>>(users);
         }
 
-        public async Task<UserForDetailedDto> GetUser(int id)
+        public async Task<DetailedUserDto> GetUser(int id)
         {
             var user = await _userRepository.GetUser(id);
-            return _mapper.Map<UserForDetailedDto>(user);
+            return _mapper.Map<DetailedUserDto>(user);
         }
     }
 }
