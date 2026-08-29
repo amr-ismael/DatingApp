@@ -13,6 +13,9 @@ using Microsoft.Extensions.Logging;
 using DatingApp.API.Data;
 using DatingApp.API.Helpers;
 using DatingApp.API.Services;
+using DatingApp.API.Shared;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -36,12 +39,18 @@ namespace DatingApp.API
     {
       services.AddDbContext<DataContext>( x => x.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
       services.AddMvc();
-      services.AddControllers().AddNewtonsoftJson(
-        opt =>
-        {
-          opt.SerializerSettings.ReferenceLoopHandling =
-            Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-        });
+      services.AddControllers()
+        .AddNewtonsoftJson(
+          opt =>
+          {
+            opt.SerializerSettings.ReferenceLoopHandling =
+              Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+          })
+        .ConfigureApiBehaviorOptions(options =>
+          options.InvalidModelStateResponseFactory = ModelStateValidator.ValidModelState);
+      services.AddValidatorsFromAssemblyContaining<Startup>();
+      services.AddFluentValidationAutoValidation(options =>
+        options.DisableDataAnnotationsValidation = true);
       services.AddCors();
       services.AddAutoMapper(cfg => { }, typeof(DatingRepository));
       services.AddTransient<Seed>();
@@ -103,13 +112,16 @@ namespace DatingApp.API
         {
           builder.Run(async context =>
           {
-            context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
-            var error = context.Features.Get <IExceptionHandlerFeature>() ;
-            if (error != null)
+            var exceptionFeature = context.Features.Get<IExceptionHandlerFeature>();
+            if (exceptionFeature != null)
             {
-              context.Response.AddApplicationError(error.Error.Message);
-              await context.Response.WriteAsync(error.Error.Message);
+              var logger = context.RequestServices.GetRequiredService<ILogger<Startup>>();
+              logger.LogError(exceptionFeature.Error, "Unhandled exception on {Path}", context.Request.Path);
             }
+
+            context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(Error.Errors.General.InternalServiceError());
           });
         });
       }

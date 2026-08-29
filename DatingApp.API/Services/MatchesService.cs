@@ -6,13 +6,14 @@ using AutoMapper;
 using DatingApp.API.Data;
 using DatingApp.API.Dtos;
 using DatingApp.API.Models;
+using DatingApp.API.Shared;
 
 namespace DatingApp.API.Services
 {
     public interface IMatchesService
     {
         Task<(IEnumerable<ListMatchDto> Matches, string NextCursor)> GetMatches(int userId, string cursor, int pageSize);
-        Task<Match> Unmatch(int matchId, int callerId);
+        Task<Result<Match>> Unmatch(int matchId, int callerId);
         Task<Match> CreateMatch(int userAId, int userBId);
     }
 
@@ -45,29 +46,29 @@ namespace DatingApp.API.Services
             return (dtos, nextCursor);
         }
 
-        public async Task<Match> Unmatch(int matchId, int callerId)
+        public async Task<Result<Match>> Unmatch(int matchId, int callerId)
         {
             var match = await _matchRepository.GetMatch(matchId);
             if (match == null)
             {
-                return null;
+                return Result.Failure<Match>(Error.Errors.Matches.NotFound());
             }
 
             if (match.LowerUserId != callerId && match.HigherUserId != callerId)
             {
-                throw new UnauthorizedAccessException("Caller is not part of this match.");
+                return Result.Failure<Match>(Error.Errors.Matches.NotAuthorized());
             }
 
             if (!match.IsActive)
             {
-                return match;
+                return Result.Success(match);
             }
 
             match.IsActive = false;
             match.UnmatchedAt = DateTime.UtcNow;
             await _matchRepository.SaveAll();
 
-            return match;
+            return Result.Success(match);
         }
 
         public async Task<Match> CreateMatch(int userAId, int userBId)

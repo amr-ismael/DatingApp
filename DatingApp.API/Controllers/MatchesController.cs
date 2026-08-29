@@ -1,7 +1,7 @@
-using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using DatingApp.API.Services;
+using DatingApp.API.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -35,21 +35,16 @@ namespace DatingApp.API.Controllers
         public async Task<IActionResult> Unmatch(int id)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var result = await _matchesService.Unmatch(id, userId);
 
-            try
+            if (result.IsFailure)
             {
-                var match = await _matchesService.Unmatch(id, userId);
-                if (match == null)
-                {
-                    return NotFound();
-                }
+                return result.Error.Code == Error.Errors.Matches.NotFound().Code
+                    ? NotFound(result.Error)
+                    : Forbid();
+            }
 
-                return Ok();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Forbid();
-            }
+            return Ok();
         }
     }
 }

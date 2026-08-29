@@ -3,13 +3,14 @@ using System.Threading.Tasks;
 using AutoMapper;
 using DatingApp.API.Data;
 using DatingApp.API.Dtos;
+using DatingApp.API.Shared;
 
 namespace DatingApp.API.Services
 {
     public interface IUserService
     {
         Task<IEnumerable<ListUserDto>> GetUsers();
-        Task<DetailedUserDto> GetUser(int id);
+        Task<Result<DetailedUserDto>> GetUser(int id);
     }
 
     public class UserService : IUserService
@@ -29,10 +30,15 @@ namespace DatingApp.API.Services
             return _mapper.Map<IEnumerable<ListUserDto>>(users);
         }
 
-        public async Task<DetailedUserDto> GetUser(int id)
+        public async Task<Result<DetailedUserDto>> GetUser(int id)
         {
             var user = await _userRepository.GetUser(id);
-            return _mapper.Map<DetailedUserDto>(user);
+            if (user == null)
+            {
+                return Result.Failure<DetailedUserDto>(Error.Errors.Users.NotFound());
+            }
+
+            return Result.Success(_mapper.Map<DetailedUserDto>(user));
         }
     }
 }

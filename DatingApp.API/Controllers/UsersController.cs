@@ -27,8 +27,13 @@ namespace DatingApp.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
-            var userToReturn = await _userService.GetUser(id);
-            return Ok(userToReturn);
+            var result = await _userService.GetUser(id);
+            if (result.IsFailure)
+            {
+                return NotFound(result.Error);
+            }
+
+            return Ok(result.Value);
         }
     }
 }

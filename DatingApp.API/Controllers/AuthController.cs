@@ -19,20 +19,25 @@ namespace DatingApp.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterUserDto userForRegisterDto)
         {
-            await _authService.Register(userForRegisterDto);
+            var result = await _authService.Register(userForRegisterDto);
+            if (result.IsFailure)
+            {
+                return Conflict(result.Error);
+            }
+
             return new StatusCodeResult(201);
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserLoginDto userForLoginDto)
         {
-            var token = await _authService.Login(userForLoginDto);
-            if (token == null)
+            var result = await _authService.Login(userForLoginDto);
+            if (result.IsFailure)
             {
-                return new UnauthorizedResult();
+                return Unauthorized(result.Error);
             }
 
-            return new OkObjectResult(new { token });
+            return Ok(new { token = result.Value });
         }
     }
 }

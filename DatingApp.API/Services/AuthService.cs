@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DatingApp.API.Data;
 using DatingApp.API.Dtos;
 using DatingApp.API.Models;
+using DatingApp.API.Shared;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -13,8 +14,8 @@ namespace DatingApp.API.Services
 {
     public interface IAuthService
     {
-        Task Register(RegisterUserDto registerUserDto);
-        Task<string> Login(UserLoginDto userLoginDto);
+        Task<Result> Register(RegisterUserDto registerUserDto);
+        Task<Result<string>> Login(UserLoginDto userLoginDto);
     }
 
     public class AuthService : IAuthService
@@ -30,12 +31,12 @@ namespace DatingApp.API.Services
             _config = config;
         }
 
-        public async Task Register(RegisterUserDto registerUserDto)
+        public async Task<Result> Register(RegisterUserDto registerUserDto)
         {
             registerUserDto.Username = registerUserDto.Username.ToLower();
             if (await _userRepository.UserExists(registerUserDto.Username))
             {
-                throw new Exception("Username already exist");
+                return Result.Failure(Error.Errors.Auth.UsernameTaken());
             }
 
             _passwordHasher.CreateHash(registerUserDto.Password, out var passwordHash, out var passwordSalt);
@@ -49,19 +50,21 @@ namespace DatingApp.API.Services
 
             _userRepository.Add(userToCreate);
             await _userRepository.SaveAll();
+
+            return Result.Success();
         }
 
-        public async Task<string> Login(UserLoginDto userLoginDto)
+        public async Task<Result<string>> Login(UserLoginDto userLoginDto)
         {
             var user = await _userRepository.GetByUsername(userLoginDto.Username.ToLower());
             if (user == null)
             {
-                return null;
+                return Result.Failure<string>(Error.Errors.Auth.InvalidCredentials());
             }
 
             if (!_passwordHasher.Verify(userLoginDto.Password, user.PasswordHash, user.PasswordSalt))
             {
-                return null;
+                return Result.Failure<string>(Error.Errors.Auth.InvalidCredentials());
             }
 
             var claims = new[]
@@ -83,7 +86,7 @@ namespace DatingApp.API.Services
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            return tokenHandler.WriteToken(token);
+            return Result.Success(tokenHandler.WriteToken(token));
         }
     }
 }
