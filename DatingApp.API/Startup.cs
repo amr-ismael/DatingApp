@@ -48,9 +48,11 @@ namespace DatingApp.API
       // scoped means services is created once per request , singleton for each request
       services.AddScoped<IUserRepository, UserRepository>();
       services.AddScoped<IDatingRepository, DatingRepository>();
+      services.AddScoped<IMatchRepository, MatchRepository>();
       services.AddScoped<IPasswordHasher, PasswordHasher>();
       services.AddScoped<IAuthService, AuthService>();
       services.AddScoped<IUserService, UserService>();
+      services.AddScoped<IMatchesService, MatchesService>();
 
       // add auth service
       services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
