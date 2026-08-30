@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
 import { AlertifyService } from '../_services/alertify.service';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -14,10 +14,11 @@ import { TitleCasePipe } from '@angular/common';
     imports: [RouterLink, RouterLinkActive, BsDropdownModule, FormsModule, TitleCasePipe]
 })
 export class NavComponent implements OnInit {
-  model: any = {};
+  authService = inject(AuthService);
+  private alertify = inject(AlertifyService);
+  private router = inject(Router);
 
-  // injecting the service in component by putting the service inside the constructor
-  constructor(public authService: AuthService, private alertify: AlertifyService, private router: Router) { }
+  model: any = {};
 
   ngOnInit() {
   }

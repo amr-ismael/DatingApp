@@ -15,7 +15,7 @@ namespace DatingApp.API.Services
     public interface IAuthService
     {
         Task<Result> Register(RegisterUserDto registerUserDto);
-        Task<Result<string>> Login(UserLoginDto userLoginDto);
+        Task<Result<string>> Login(LoginUserDto userLoginDto);
     }
 
     public class AuthService : IAuthService
@@ -33,19 +33,28 @@ namespace DatingApp.API.Services
 
         public async Task<Result> Register(RegisterUserDto registerUserDto)
         {
-            registerUserDto.Username = registerUserDto.Username.ToLower();
-            if (await _userRepository.UserExists(registerUserDto.Username))
+            var email = registerUserDto.Email.ToLower();
+            if (await _userRepository.EmailExists(email))
             {
-                return Result.Failure(Error.Errors.Auth.UsernameTaken());
+                return Result.Failure(Error.Errors.Auth.EmailTaken());
             }
 
             _passwordHasher.CreateHash(registerUserDto.Password, out var passwordHash, out var passwordSalt);
 
             var userToCreate = new User
             {
-                Username = registerUserDto.Username,
+                Username = Guid.NewGuid().ToString(),
+                FirstName = registerUserDto.FirstName,
+                LastName = registerUserDto.LastName,
+                Email = email,
+                DateOfBirth = registerUserDto.DateOfBirth,
+                Gender = registerUserDto.Gender.Value,
+                InterestedIn = registerUserDto.InterestedIn.Value,
+                Location = registerUserDto.Location,
                 PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt
+                PasswordSalt = passwordSalt,
+                Created = DateTime.UtcNow,
+                LastActive = DateTime.UtcNow
             };
 
             _userRepository.Add(userToCreate);
@@ -54,9 +63,9 @@ namespace DatingApp.API.Services
             return Result.Success();
         }
 
-        public async Task<Result<string>> Login(UserLoginDto userLoginDto)
+        public async Task<Result<string>> Login(LoginUserDto userLoginDto)
         {
-            var user = await _userRepository.GetByUsername(userLoginDto.Username.ToLower());
+            var user = await _userRepository.GetByEmail(userLoginDto.Email.ToLower());
             if (user == null)
             {
                 return Result.Failure<string>(Error.Errors.Auth.InvalidCredentials());
@@ -71,6 +80,7 @@ namespace DatingApp.API.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));

@@ -28,6 +28,8 @@ namespace DatingApp.API.Shared
                     => new Error("invalid.input.data", $"Input data error in field '{field}'", field);
                 public static Error ValidationError(string message)
                     => new Error("validation.error", message, "validation");
+                public static Error InvalidFormat(string field)
+                    => new Error($"{field}.invalid.format", $"{field} is not a valid format", field);
                 public static Error InternalServiceError()
                     => new Error("internal.service.error", "an unexpected error occurred", "internal");
             }
@@ -36,6 +38,8 @@ namespace DatingApp.API.Shared
             {
                 public static Error UsernameTaken()
                     => new Error("auth.username.taken", "username is already taken", "username");
+                public static Error EmailTaken()
+                    => new Error("auth.email.taken", "email is already registered", "email");
                 public static Error InvalidCredentials()
                     => new Error("auth.invalid.credentials", "invalid username or password", "credentials");
             }
@@ -52,6 +56,14 @@ namespace DatingApp.API.Shared
                     => new Error("match.not.found", "match not found", "id");
                 public static Error NotAuthorized()
                     => new Error("match.not.authorized", "you are not part of this match", "id");
+            }
+
+            public static class Likes
+            {
+                public static Error CannotLikeSelf()
+                    => new Error("like.cannot.like.self", "you cannot like yourself", "likeeId");
+                public static Error AlreadyLiked()
+                    => new Error("like.already.exists", "you already liked this user", "likeeId");
             }
         }
 

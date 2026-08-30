@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { NavComponent } from '../nav/nav.component';
@@ -12,8 +12,9 @@ import { RouterOutlet } from '@angular/router';
     imports: [NavComponent, RouterOutlet]
 })
 export class AppComponent implements OnInit {
+  private authService = inject(AuthService);
+
   jwtHelper = new JwtHelperService();
-  constructor(private authService: AuthService) { }
 
   ngOnInit() {
     const token = localStorage.getItem('token');

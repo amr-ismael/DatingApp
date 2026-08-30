@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -10,7 +11,7 @@ namespace DatingApp.API.Services
     public interface IUserService
     {
         Task<IEnumerable<ListUserDto>> GetUsers();
-        Task<Result<DetailedUserDto>> GetUser(int id);
+        Task<Result<DetailedUserDto>> GetUser(Guid id);
     }
 
     public class UserService : IUserService
@@ -30,7 +31,7 @@ namespace DatingApp.API.Services
             return _mapper.Map<IEnumerable<ListUserDto>>(users);
         }
 
-        public async Task<Result<DetailedUserDto>> GetUser(int id)
+        public async Task<Result<DetailedUserDto>> GetUser(Guid id)
         {
             var user = await _userRepository.GetUser(id);
             if (user == null)

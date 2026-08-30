@@ -32,24 +32,27 @@ namespace DatingApp.API.Tests.Services
         [Fact]
         public async Task GetMatches_CallerIsLowerUser_ReturnsHigherUserAsTheOtherUser()
         {
+            var matchId = Guid.NewGuid();
+            var lowerUserId = Guid.NewGuid();
+            var higherUserId = Guid.NewGuid();
             var match = new Match
             {
-                Id = 1,
-                LowerUserId = 1,
-                HigherUser = new User { Id = 2, Username = "dorothy" },
-                HigherUserId = 2,
-                LowerUser = new User { Id = 1, Username = "lola" },
+                Id = matchId,
+                LowerUserId = lowerUserId,
+                HigherUser = new User { Id = higherUserId, Username = "dorothy" },
+                HigherUserId = higherUserId,
+                LowerUser = new User { Id = lowerUserId, Username = "lola" },
                 MatchedAt = DateTime.UtcNow,
                 IsActive = true
             };
-            _matchRepository.Setup(r => r.GetMatches(1, null, 10))
+            _matchRepository.Setup(r => r.GetMatches(lowerUserId, null, 10))
                 .ReturnsAsync((new List<Match> { match }, (string)null));
 
-            var (matches, nextCursor) = await _service.GetMatches(1, null, 10);
+            var (matches, nextCursor) = await _service.GetMatches(lowerUserId, null, 10);
 
             var dto = Assert.Single(matches);
-            Assert.Equal(1, dto.MatchId);
-            Assert.Equal(2, dto.User.Id);
+            Assert.Equal(matchId, dto.MatchId);
+            Assert.Equal(higherUserId, dto.User.Id);
             Assert.Equal("dorothy", dto.User.Username);
             Assert.Null(nextCursor);
         }
@@ -57,33 +60,37 @@ namespace DatingApp.API.Tests.Services
         [Fact]
         public async Task GetMatches_CallerIsHigherUser_ReturnsLowerUserAsTheOtherUser()
         {
+            var matchId = Guid.NewGuid();
+            var lowerUserId = Guid.NewGuid();
+            var higherUserId = Guid.NewGuid();
             var match = new Match
             {
-                Id = 1,
-                LowerUserId = 1,
-                LowerUser = new User { Id = 1, Username = "lola" },
-                HigherUserId = 2,
-                HigherUser = new User { Id = 2, Username = "dorothy" },
+                Id = matchId,
+                LowerUserId = lowerUserId,
+                LowerUser = new User { Id = lowerUserId, Username = "lola" },
+                HigherUserId = higherUserId,
+                HigherUser = new User { Id = higherUserId, Username = "dorothy" },
                 MatchedAt = DateTime.UtcNow,
                 IsActive = true
             };
-            _matchRepository.Setup(r => r.GetMatches(2, null, 10))
+            _matchRepository.Setup(r => r.GetMatches(higherUserId, null, 10))
                 .ReturnsAsync((new List<Match> { match }, (string)null));
 
-            var (matches, _) = await _service.GetMatches(2, null, 10);
+            var (matches, _) = await _service.GetMatches(higherUserId, null, 10);
 
             var dto = Assert.Single(matches);
-            Assert.Equal(1, dto.User.Id);
+            Assert.Equal(lowerUserId, dto.User.Id);
             Assert.Equal("lola", dto.User.Username);
         }
 
         [Fact]
         public async Task GetMatches_PassesThroughNextCursorFromRepository()
         {
-            _matchRepository.Setup(r => r.GetMatches(1, null, 10))
+            var userId = Guid.NewGuid();
+            _matchRepository.Setup(r => r.GetMatches(userId, null, 10))
                 .ReturnsAsync((new List<Match>(), "some-cursor"));
 
-            var (_, nextCursor) = await _service.GetMatches(1, null, 10);
+            var (_, nextCursor) = await _service.GetMatches(userId, null, 10);
 
             Assert.Equal("some-cursor", nextCursor);
         }
@@ -91,9 +98,11 @@ namespace DatingApp.API.Tests.Services
         [Fact]
         public async Task Unmatch_MatchNotFound_ReturnsNotFoundFailure()
         {
-            _matchRepository.Setup(r => r.GetMatch(1)).ReturnsAsync((Match)null);
+            var matchId = Guid.NewGuid();
+            var callerId = Guid.NewGuid();
+            _matchRepository.Setup(r => r.GetMatch(matchId)).ReturnsAsync((Match)null);
 
-            var result = await _service.Unmatch(1, 1);
+            var result = await _service.Unmatch(matchId, callerId);
 
             Assert.True(result.IsFailure);
             Assert.Equal(Error.Errors.Matches.NotFound().Code, result.Error.Code);
@@ -103,10 +112,14 @@ namespace DatingApp.API.Tests.Services
         [Fact]
         public async Task Unmatch_CallerNotAParticipant_ReturnsNotAuthorizedFailure()
         {
-            var match = new Match { Id = 1, LowerUserId = 1, HigherUserId = 2, IsActive = true };
-            _matchRepository.Setup(r => r.GetMatch(1)).ReturnsAsync(match);
+            var matchId = Guid.NewGuid();
+            var lowerUserId = Guid.NewGuid();
+            var higherUserId = Guid.NewGuid();
+            var unrelatedUserId = Guid.NewGuid();
+            var match = new Match { Id = matchId, LowerUserId = lowerUserId, HigherUserId = higherUserId, IsActive = true };
+            _matchRepository.Setup(r => r.GetMatch(matchId)).ReturnsAsync(match);
 
-            var result = await _service.Unmatch(1, 99);
+            var result = await _service.Unmatch(matchId, unrelatedUserId);
 
             Assert.True(result.IsFailure);
             Assert.Equal(Error.Errors.Matches.NotAuthorized().Code, result.Error.Code);
@@ -116,10 +129,13 @@ namespace DatingApp.API.Tests.Services
         [Fact]
         public async Task Unmatch_AlreadyInactive_IsIdempotentAndDoesNotSave()
         {
-            var match = new Match { Id = 1, LowerUserId = 1, HigherUserId = 2, IsActive = false, UnmatchedAt = DateTime.UtcNow.AddDays(-1) };
-            _matchRepository.Setup(r => r.GetMatch(1)).ReturnsAsync(match);
+            var matchId = Guid.NewGuid();
+            var lowerUserId = Guid.NewGuid();
+            var higherUserId = Guid.NewGuid();
+            var match = new Match { Id = matchId, LowerUserId = lowerUserId, HigherUserId = higherUserId, IsActive = false, UnmatchedAt = DateTime.UtcNow.AddDays(-1) };
+            _matchRepository.Setup(r => r.GetMatch(matchId)).ReturnsAsync(match);
 
-            var result = await _service.Unmatch(1, 1);
+            var result = await _service.Unmatch(matchId, lowerUserId);
 
             Assert.True(result.IsSuccessful);
             Assert.Same(match, result.Value);
@@ -129,11 +145,14 @@ namespace DatingApp.API.Tests.Services
         [Fact]
         public async Task Unmatch_ActiveMatch_CallerIsLowerUser_SoftDeletesAndSaves()
         {
-            var match = new Match { Id = 1, LowerUserId = 1, HigherUserId = 2, IsActive = true };
-            _matchRepository.Setup(r => r.GetMatch(1)).ReturnsAsync(match);
+            var matchId = Guid.NewGuid();
+            var lowerUserId = Guid.NewGuid();
+            var higherUserId = Guid.NewGuid();
+            var match = new Match { Id = matchId, LowerUserId = lowerUserId, HigherUserId = higherUserId, IsActive = true };
+            _matchRepository.Setup(r => r.GetMatch(matchId)).ReturnsAsync(match);
             _matchRepository.Setup(r => r.SaveAll()).ReturnsAsync(true);
 
-            var result = await _service.Unmatch(1, 1);
+            var result = await _service.Unmatch(matchId, lowerUserId);
 
             Assert.True(result.IsSuccessful);
             Assert.False(result.Value.IsActive);
@@ -144,11 +163,14 @@ namespace DatingApp.API.Tests.Services
         [Fact]
         public async Task Unmatch_ActiveMatch_CallerIsHigherUser_SoftDeletesAndSaves()
         {
-            var match = new Match { Id = 1, LowerUserId = 1, HigherUserId = 2, IsActive = true };
-            _matchRepository.Setup(r => r.GetMatch(1)).ReturnsAsync(match);
+            var matchId = Guid.NewGuid();
+            var lowerUserId = Guid.NewGuid();
+            var higherUserId = Guid.NewGuid();
+            var match = new Match { Id = matchId, LowerUserId = lowerUserId, HigherUserId = higherUserId, IsActive = true };
+            _matchRepository.Setup(r => r.GetMatch(matchId)).ReturnsAsync(match);
             _matchRepository.Setup(r => r.SaveAll()).ReturnsAsync(true);
 
-            var result = await _service.Unmatch(1, 2);
+            var result = await _service.Unmatch(matchId, higherUserId);
 
             Assert.True(result.IsSuccessful);
             Assert.False(result.Value.IsActive);
@@ -158,10 +180,12 @@ namespace DatingApp.API.Tests.Services
         [Fact]
         public async Task CreateMatch_DelegatesToRepository()
         {
-            var created = new Match { Id = 5, LowerUserId = 1, HigherUserId = 2 };
-            _matchRepository.Setup(r => r.CreateMatch(2, 1)).ReturnsAsync(created);
+            var userAId = Guid.NewGuid();
+            var userBId = Guid.NewGuid();
+            var created = new Match { Id = Guid.NewGuid(), LowerUserId = userBId, HigherUserId = userAId };
+            _matchRepository.Setup(r => r.CreateMatch(userAId, userBId)).ReturnsAsync(created);
 
-            var result = await _service.CreateMatch(2, 1);
+            var result = await _service.CreateMatch(userAId, userBId);
 
             Assert.Same(created, result);
         }

@@ -17,9 +17,9 @@ namespace DatingApp.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterUserDto userForRegisterDto)
+        public async Task<IActionResult> Register(RegisterUserDto registerUserDto)
         {
-            var result = await _authService.Register(userForRegisterDto);
+            var result = await _authService.Register(registerUserDto);
             if (result.IsFailure)
             {
                 return Conflict(result.Error);
@@ -29,9 +29,9 @@ namespace DatingApp.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(UserLoginDto userForLoginDto)
+        public async Task<IActionResult> Login(LoginUserDto loginUserDto)
         {
-            var result = await _authService.Login(userForLoginDto);
+            var result = await _authService.Login(loginUserDto);
             if (result.IsFailure)
             {
                 return Unauthorized(result.Error);

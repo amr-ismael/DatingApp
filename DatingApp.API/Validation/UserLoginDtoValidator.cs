@@ -4,13 +4,15 @@ using FluentValidation;
 
 namespace DatingApp.API.Validation
 {
-    public sealed class UserLoginDtoValidator : AbstractValidator<UserLoginDto>
+    public sealed class UserLoginDtoValidator : AbstractValidator<LoginUserDto>
     {
         public UserLoginDtoValidator()
         {
-            RuleFor(x => x.Username)
+            RuleFor(x => x.Email)
                 .NotEmpty()
-                    .WithMessage(Error.Errors.General.IsRequiredError("username").Serialize());
+                    .WithMessage(Error.Errors.General.IsRequiredError("email").Serialize())
+                .EmailAddress()
+                    .WithMessage(Error.Errors.General.InvalidFormat("email").Serialize());
 
             RuleFor(x => x.Password)
                 .NotEmpty()

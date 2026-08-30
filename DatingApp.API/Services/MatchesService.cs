@@ -12,9 +12,9 @@ namespace DatingApp.API.Services
 {
     public interface IMatchesService
     {
-        Task<(IEnumerable<ListMatchDto> Matches, string NextCursor)> GetMatches(int userId, string cursor, int pageSize);
-        Task<Result<Match>> Unmatch(int matchId, int callerId);
-        Task<Match> CreateMatch(int userAId, int userBId);
+        Task<(IEnumerable<ListMatchDto> Matches, string NextCursor)> GetMatches(Guid userId, string cursor, int pageSize);
+        Task<Result<Match>> Unmatch(Guid matchId, Guid callerId);
+        Task<Match> CreateMatch(Guid userAId, Guid userBId);
     }
 
     public class MatchesService : IMatchesService
@@ -28,7 +28,7 @@ namespace DatingApp.API.Services
             _mapper = mapper;
         }
 
-        public async Task<(IEnumerable<ListMatchDto> Matches, string NextCursor)> GetMatches(int userId, string cursor, int pageSize)
+        public async Task<(IEnumerable<ListMatchDto> Matches, string NextCursor)> GetMatches(Guid userId, string cursor, int pageSize)
         {
             var (matches, nextCursor) = await _matchRepository.GetMatches(userId, cursor, pageSize);
 
@@ -46,7 +46,7 @@ namespace DatingApp.API.Services
             return (dtos, nextCursor);
         }
 
-        public async Task<Result<Match>> Unmatch(int matchId, int callerId)
+        public async Task<Result<Match>> Unmatch(Guid matchId, Guid callerId)
         {
             var match = await _matchRepository.GetMatch(matchId);
             if (match == null)
@@ -71,7 +71,7 @@ namespace DatingApp.API.Services
             return Result.Success(match);
         }
 
-        public async Task<Match> CreateMatch(int userAId, int userBId)
+        public async Task<Match> CreateMatch(Guid userAId, Guid userBId)
         {
             return await _matchRepository.CreateMatch(userAId, userBId);
         }

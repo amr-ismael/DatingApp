@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, inject } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
 import { AlertifyService } from '../_services/alertify.service';
 import { FormsModule } from '@angular/forms';
@@ -11,12 +11,13 @@ import { FormsModule } from '@angular/forms';
     imports: [FormsModule]
 })
 export class RegisterComponent implements OnInit {
+  private authervice = inject(AuthService);
+  private alertify = inject(AlertifyService);
+
   // to receive prop from parent comp
   // to send prop for parent comp
   @Output() cancelRegister = new EventEmitter();
   model: any = {};
-
-  constructor(private authervice: AuthService, private alertify: AlertifyService) { }
 
   ngOnInit() {
   }

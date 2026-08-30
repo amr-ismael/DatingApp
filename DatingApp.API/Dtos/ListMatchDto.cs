@@ -4,7 +4,7 @@ namespace DatingApp.API.Dtos
 {
     public class ListMatchDto
     {
-        public int MatchId { get; set; }
+        public Guid MatchId { get; set; }
 
         public DateTime MatchedAt { get; set; }
 

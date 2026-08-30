@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../_services/auth.service';
 import { AlertifyService } from '../_services/alertify.service';
@@ -7,12 +7,10 @@ import { AlertifyService } from '../_services/alertify.service';
   providedIn: 'root'
 })
 export class AuthGuard  {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private alertify = inject(AlertifyService);
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private alertify: AlertifyService
-  ) { }
   canActivate(): boolean {
     if (this.authService.loggedIn()) {
       return true;

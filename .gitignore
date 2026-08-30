@@ -381,3 +381,6 @@ CLAUDE.md
 CONTRIBUTING.md
 UI
 .DS_Store
+.mcp.json
+DatingApp-SPA/FRONTEND_SPEC.md
+dotnet-tools.json

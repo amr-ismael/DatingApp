@@ -10,9 +10,9 @@ namespace DatingApp.API.Data
 {
     public interface IMatchRepository
     {
-        Task<(IEnumerable<Match> Matches, string NextCursor)> GetMatches(int userId, string cursor, int pageSize);
-        Task<Match> GetMatch(int id);
-        Task<Match> CreateMatch(int userAId, int userBId);
+        Task<(IEnumerable<Match> Matches, string NextCursor)> GetMatches(Guid userId, string cursor, int pageSize);
+        Task<Match> GetMatch(Guid id);
+        Task<Match> CreateMatch(Guid userAId, Guid userBId);
         Task<bool> SaveAll();
     }
 
@@ -25,7 +25,7 @@ namespace DatingApp.API.Data
             _context = context;
         }
 
-        public async Task<(IEnumerable<Match> Matches, string NextCursor)> GetMatches(int userId, string cursor, int pageSize)
+        public async Task<(IEnumerable<Match> Matches, string NextCursor)> GetMatches(Guid userId, string cursor, int pageSize)
         {
             var query = _context.Matches
                 .Include(m => m.LowerUser).ThenInclude(u => u.Photos)
@@ -55,7 +55,7 @@ namespace DatingApp.API.Data
             return (matches, nextCursor);
         }
 
-        public async Task<Match> GetMatch(int id)
+        public async Task<Match> GetMatch(Guid id)
         {
             return await _context.Matches
                 .Include(m => m.LowerUser)
@@ -63,15 +63,25 @@ namespace DatingApp.API.Data
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        public async Task<Match> CreateMatch(int userAId, int userBId)
+        public async Task<Match> CreateMatch(Guid userAId, Guid userBId)
         {
-            var lowerId = Math.Min(userAId, userBId);
-            var higherId = Math.Max(userAId, userBId);
+            // Guid has no numeric ordering — "Lower"/"Higher" just means a stable,
+            // consistent pick between the two, not a meaningful magnitude comparison.
+            var lowerId = userAId.CompareTo(userBId) < 0 ? userAId : userBId;
+            var higherId = userAId.CompareTo(userBId) < 0 ? userBId : userAId;
 
             var existing = await _context.Matches
                 .FirstOrDefaultAsync(m => m.LowerUserId == lowerId && m.HigherUserId == higherId);
             if (existing != null)
             {
+                if (!existing.IsActive)
+                {
+                    existing.IsActive = true;
+                    existing.MatchedAt = DateTime.UtcNow;
+                    existing.UnmatchedAt = null;
+                    await _context.SaveChangesAsync();
+                }
+
                 return existing;
             }
 
@@ -93,16 +103,16 @@ namespace DatingApp.API.Data
             return await _context.SaveChangesAsync() > 0;
         }
 
-        private static string EncodeCursor(long matchedAtTicks, int id)
+        private static string EncodeCursor(long matchedAtTicks, Guid id)
         {
             return Convert.ToBase64String(Encoding.UTF8.GetBytes($"{matchedAtTicks}_{id}"));
         }
 
-        private static (long MatchedAtTicks, int Id) DecodeCursor(string cursor)
+        private static (long MatchedAtTicks, Guid Id) DecodeCursor(string cursor)
         {
             var decoded = Encoding.UTF8.GetString(Convert.FromBase64String(cursor));
             var parts = decoded.Split('_');
-            return (long.Parse(parts[0]), int.Parse(parts[1]));
+            return (long.Parse(parts[0]), Guid.Parse(parts[1]));
         }
     }
 }

@@ -1,9 +1,10 @@
+using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using DatingApp.API.Dtos;
 using DatingApp.API.Services;
 using DatingApp.API.Shared;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DatingApp.API.Controllers
@@ -23,18 +24,16 @@ namespace DatingApp.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMatches([FromQuery] string cursor, [FromQuery] int pageSize = 10)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var (matches, nextCursor) = await _matchesService.GetMatches(userId, cursor, pageSize);
 
-            Response.Headers.Append("X-Next-Cursor", nextCursor ?? string.Empty);
-
-            return Ok(matches);
+            return Ok(new PagedResponse<ListMatchDto>(matches, nextCursor, pageSize));
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Unmatch(int id)
+        public async Task<IActionResult> Unmatch(Guid id)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var result = await _matchesService.Unmatch(id, userId);
 
             if (result.IsFailure)

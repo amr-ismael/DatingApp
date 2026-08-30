@@ -37,7 +37,8 @@ namespace DatingApp.API
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
-      services.AddDbContext<DataContext>( x => x.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+      services.AddDbContext<DataContext>( x => x.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.UseNetTopologySuite()));
       services.AddMvc();
       services.AddControllers()
         .AddNewtonsoftJson(
@@ -53,15 +54,16 @@ namespace DatingApp.API
         options.DisableDataAnnotationsValidation = true);
       services.AddCors();
       services.AddAutoMapper(cfg => { }, typeof(DatingRepository));
-      services.AddTransient<Seed>();
       // scoped means services is created once per request , singleton for each request
       services.AddScoped<IUserRepository, UserRepository>();
       services.AddScoped<IDatingRepository, DatingRepository>();
       services.AddScoped<IMatchRepository, MatchRepository>();
+      services.AddScoped<ILikeRepository, LikeRepository>();
       services.AddScoped<IPasswordHasher, PasswordHasher>();
       services.AddScoped<IAuthService, AuthService>();
       services.AddScoped<IUserService, UserService>();
       services.AddScoped<IMatchesService, MatchesService>();
+      services.AddScoped<ILikesService, LikesService>();
 
       // add auth service
       services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(

@@ -1,5 +1,4 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { RegisterComponent } from '../register/register.component';
 
 @Component({
@@ -11,8 +10,6 @@ import { RegisterComponent } from '../register/register.component';
 })
 export class HomeComponent implements OnInit {
   registerMode = false;
-
-  constructor(private http: HttpClient) { }
 
   ngOnInit() {
   }

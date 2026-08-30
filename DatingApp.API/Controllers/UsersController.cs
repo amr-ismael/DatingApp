@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 using DatingApp.API.Services;
 
@@ -25,7 +26,7 @@ namespace DatingApp.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUser(int id)
+        public async Task<IActionResult> GetUser(Guid id)
         {
             var result = await _userService.GetUser(id);
             if (result.IsFailure)
@@ -34,6 +35,12 @@ namespace DatingApp.API.Controllers
             }
 
             return Ok(result.Value);
+        }
+
+        [HttpGet("ping")]
+        public IActionResult Ping()
+        {
+            return Ok();
         }
     }
 }
